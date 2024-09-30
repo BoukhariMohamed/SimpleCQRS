@@ -31,14 +31,27 @@ namespace SimpleCQRS.Application.Commands.Handlers
         /// <exception cref="Exception"></exception>
         public async Task<bool> Handle(DelletePostCommand request, CancellationToken cancellationToken)
         {
-            var post = await _postRepository.GetAsync(predicate:x=>x.PostId == request.postId , disableTracking:true) 
-                ?? throw new Exception($"Post Not Found {request.postId}");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
 
-            _postRepository.Delete(post);
+                var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.postId, disableTracking: true)
+               ?? throw new Exception($"Post Not Found {request.postId}");
 
-            await _unitOfWork.SaveChangesAsync();
+                _postRepository.Delete(post);
 
-            return true;
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitAsync();
+
+                return true;
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+           
         }
     }
 }

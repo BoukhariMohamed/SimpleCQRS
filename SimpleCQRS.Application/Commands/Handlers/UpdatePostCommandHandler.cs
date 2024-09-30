@@ -33,23 +33,36 @@ namespace SimpleCQRS.Application.Commands.Handlers
 
 
         public async Task<bool> Handle(UpdatePostCommand request, CancellationToken cancellationToken)
-        {                                        
-            var validationResult = await _validator.ValidateAsync(request);
-            if (!validationResult.IsValid)       
-            {                                    
-                throw new ValidationException(validationResult.Errors);
-            }                                    
-                                                
-            var post = await _postRepository.GetAsync(predicate:x=>x.PostId == request.PostId) ??  
-                throw new Exception($"Not Found Post with Id : {request.PostId}");
-                                                 
-            post.UpdatePost(request.Title, request.Content);
-                                                 
-            _postRepository.Update(post);        
-                                                 
-            await _unitOfWork.SaveChangesAsync();
-                                                 
-            return true;                         
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                var validationResult = await _validator.ValidateAsync(request);
+                if (!validationResult.IsValid)
+                {
+                    throw new ValidationException(validationResult.Errors);
+                }
+
+                var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.PostId) ??
+                    throw new Exception($"Not Found Post with Id : {request.PostId}");
+
+                post.UpdatePost(request.Title, request.Content);
+
+                _postRepository.Update(post);
+
+                await _unitOfWork.SaveChangesAsync();
+
+                await _unitOfWork.CommitAsync();
+              
+                return true;
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+                              
         }
     }
 }
