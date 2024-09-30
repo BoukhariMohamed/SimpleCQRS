@@ -1,4 +1,5 @@
-﻿using SimpleCQRS.Domain.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Infrastructure.Data;
 
 namespace SimpleCQRS.Infrastructure
@@ -16,6 +17,23 @@ namespace SimpleCQRS.Infrastructure
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+
         }
+
+        public async Task BeginTransactionAsync()
+        {
+            await _context.Database.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync()
+        {
+            await _context.Database.CommitTransactionAsync();
+        }
+
+        public async Task RollbackAsync()
+        {
+            await _context.Database.RollbackTransactionAsync();
+        }
+
     }
 }

@@ -32,18 +32,21 @@ namespace SimpleCQRS.Application.Commands.Handlers
         {
             try
             {
-             
+                await _unitOfWork.BeginTransactionAsync();
+
                 var post = Post.CreatePost(request.title, request.content);
 
                 await _postRepository.AddedAsync(post);
 
                 await _unitOfWork.SaveChangesAsync();
 
+                await _unitOfWork.CommitAsync();
+
                 return post.PostId;
             }
             catch (Exception ex)
             {
-
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
           
