@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SimpleCQRS.Application.DTOs;
+using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
 
@@ -34,7 +35,7 @@ namespace SimpleCQRS.Application.Queries.Handlers
         public async Task<GetPostDto> Handle(GetPostByIdQuerie request, CancellationToken cancellationToken)
         {
             var result =await _postRepository.GetAsync(predicate:x=>x.PostId == request.postId , disableTracking:true) ?? 
-                         throw new Exception($"Post Not Found With Id : {request.postId}");
+                         throw new NotFoundException(nameof(Post),request.postId);
            
             return _mapper.Map<GetPostDto>(result);
         }

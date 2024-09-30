@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SimpleCQRS.Application.DTOs;
+using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
 

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
@@ -45,7 +46,7 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 }
 
                 var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.PostId) ??
-                    throw new Exception($"Not Found Post with Id : {request.PostId}");
+                     throw new NotFoundException(nameof(Post), request.PostId);
 
                 post.UpdatePost(request.Title, request.Content);
 

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
@@ -35,8 +36,9 @@ namespace SimpleCQRS.Application.Commands.Handlers
             {
                 await _unitOfWork.BeginTransactionAsync();
 
+                //Exception($"Post Not Found {request.postId}");
                 var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.postId, disableTracking: true)
-               ?? throw new Exception($"Post Not Found {request.postId}");
+               ?? throw new NotFoundException(nameof(Post), request.postId);
 
                 _postRepository.Delete(post);
 
