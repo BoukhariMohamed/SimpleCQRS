@@ -16,8 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.RegisterInfrastructure();
 
 
-
     builder.Services.AddControllers();
+
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 

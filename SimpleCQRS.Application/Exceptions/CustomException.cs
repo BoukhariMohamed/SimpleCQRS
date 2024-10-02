@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace SimpleCQRS.Application.Exceptions;
 
-namespace SimpleCQRS.Application.Exceptions
+public class CustomException : Exception
 {
-    public class CustomException : Exception
+    public CustomException(string message) : base(message)
     {
-        public CustomException(string message) : base(message)
-        {
-        }
+    }
 
-        public CustomException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    public CustomException(string message, Exception innerException) : base(message, innerException)
+    {
     }
 }

@@ -38,7 +38,7 @@ namespace SimpleCQRS.Application.Commands.Handlers
 
                 //Exception($"Post Not Found {request.postId}");
                 var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.postId, disableTracking: true)
-               ?? throw new NotFoundException(nameof(Post), request.postId);
+               ?? throw new NotFoundModelException(nameof(Post), request.postId);
 
                 _postRepository.Delete(post);
 

@@ -35,7 +35,7 @@ namespace SimpleCQRS.Application.Queries.Handlers
         public async Task<GetPostDto> Handle(GetPostByIdQuerie request, CancellationToken cancellationToken)
         {
             var result =await _postRepository.GetAsync(predicate:x=>x.PostId == request.postId , disableTracking:true) ?? 
-                         throw new NotFoundException(nameof(Post),request.postId);
+                         throw new NotFoundModelException(nameof(Post),request.postId);
            
             return _mapper.Map<GetPostDto>(result);
         }

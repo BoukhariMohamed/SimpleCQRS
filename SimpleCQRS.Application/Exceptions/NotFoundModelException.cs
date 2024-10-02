@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SimpleCQRS.Application.Exceptions
 {
-    public class NotFoundException : CustomException
+    public class NotFoundModelException : CustomException
     {
-        public NotFoundException(string entityName, object key)
+        public NotFoundModelException(string entityName, object key)
             : base($"{entityName} with key '{key}' was not found.")
         {
 

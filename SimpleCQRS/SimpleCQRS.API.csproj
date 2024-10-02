@@ -20,6 +20,10 @@
     <ProjectReference Include="..\SimpleCQRS.Application\SimpleCQRS.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Hubs\" />
+  </ItemGroup>
+
  
 
 </Project>

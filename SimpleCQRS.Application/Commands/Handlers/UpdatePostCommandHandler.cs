@@ -46,7 +46,7 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 }
 
                 var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.PostId) ??
-                     throw new NotFoundException(nameof(Post), request.PostId);
+                     throw new NotFoundModelException(nameof(Post), request.PostId);
 
                 post.UpdatePost(request.Title, request.Content);
 
