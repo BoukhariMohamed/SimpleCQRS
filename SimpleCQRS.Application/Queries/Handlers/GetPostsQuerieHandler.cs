@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using SimpleCQRS.Application.DTOs;
 using SimpleCQRS.Application.Exceptions;
+using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
 
@@ -12,11 +15,14 @@ namespace SimpleCQRS.Application.Queries.Handlers
 
         private readonly IGenericRepository<Post> _postRepository;
         private readonly IMapper _mapper;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public GetPostsQuerieHandler(IGenericRepository<Post> postRepository, IMapper mapper)
+
+        public GetPostsQuerieHandler(IGenericRepository<Post> postRepository, IMapper mapper, IHubContext<NotificationHub> hubContext)
         {
             _postRepository = postRepository;
             _mapper = mapper;
+            _hubContext = hubContext;
         }
 
 
@@ -27,6 +33,8 @@ namespace SimpleCQRS.Application.Queries.Handlers
                 var postes = await _postRepository.GetListAsync(disableTracking: true);
                 
                 var mapPostes = _mapper.Map<IEnumerable<GetPostDto>>(postes);
+
+                await _hubContext.Clients.All.SendAsync("PostsRetrieved", mapPostes);
 
                 return mapPostes;
             }
