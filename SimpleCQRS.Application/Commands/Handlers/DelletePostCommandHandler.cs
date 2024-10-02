@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using SimpleCQRS.Application.Exceptions;
+using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
@@ -12,14 +14,19 @@ namespace SimpleCQRS.Application.Commands.Handlers
         /// Post Repository
         /// </summary>
         private readonly IGenericRepository<Post> _postRepository;
-
         /// <summary>
         /// IUnitOfWork
         /// </summary>
         private readonly IUnitOfWork _unitOfWork;
-        public DelletePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork)
+        private readonly IHubContext<NotificationHub> _hubContext;
+
+        public DelletePostCommandHandler(
+            IGenericRepository<Post> postRepository, 
+            IUnitOfWork unitOfWork, 
+            IHubContext<NotificationHub> hubContext)
         {
             _postRepository = postRepository;
+            _hubContext = hubContext;
             _unitOfWork = unitOfWork;
         }
 
@@ -45,6 +52,10 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitAsync();
+
+                // Notify clients via SignalR about the post deletion
+                await _hubContext.Clients.All.SendAsync("PostDeleted", request.postId);
+
 
                 return true;
             }

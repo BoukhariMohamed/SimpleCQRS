@@ -1,7 +1,11 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
+
 
 namespace SimpleCQRS.Application.Commands.Handlers
 {
@@ -12,12 +16,14 @@ namespace SimpleCQRS.Application.Commands.Handlers
         /// </summary>
         private readonly IGenericRepository<Post> _postRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         //whay you dont use DTO
-        public CreatePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork)
+        public CreatePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
         {
-             _postRepository = postRepository;
-             _unitOfWork = unitOfWork;
+            _postRepository = postRepository;
+            _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
         /// <summary>
@@ -41,6 +47,9 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 await _unitOfWork.SaveChangesAsync();
 
                 await _unitOfWork.CommitAsync();
+
+                // Notify clients via SignalR
+                await _hubContext.Clients.All.SendAsync("PostCreated", post);
 
                 return post.PostId;
             }

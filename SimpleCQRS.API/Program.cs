@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SimpleCQRS.Application;
+using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Infrastructure;
 using SimpleCQRS.Infrastructure.Data;
 
@@ -20,14 +21,17 @@ var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    
+    builder.Services.AddSignalR();
 
 
+var app = builder.Build();
+    
+ app.MapHub<NotificationHub>("/notificationHub");
 
 
-    var app = builder.Build();
-
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
         app.UseSwaggerUI();
