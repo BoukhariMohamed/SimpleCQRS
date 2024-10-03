@@ -34,7 +34,14 @@ namespace SimpleCQRS.Application.Queries.Handlers
                 
                 var mapPostes = _mapper.Map<IEnumerable<GetPostDto>>(postes);
 
-                await _hubContext.Clients.All.SendAsync("PostsRetrieved", mapPostes);
+                await _hubContext.Clients.All.SendAsync("PostsRetrieved",postes.Select(x=>new GetPostDto
+                {
+                    Content = x.Content,
+                    Title = x.Title,
+                    PostId = x.PostId,
+                    DateCreated = x.DateCreated,
+                    LastModified = x.LastModified
+                }));
 
                 return mapPostes;
             }

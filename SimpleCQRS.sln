@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCQRS.API", "SimpleCQR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRClient", "SignalRClient\SignalRClient.csproj", "{B06CFA83-857A-4C66-81C5-B756E52421E4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventTracker", "EventTracker\EventTracker.csproj", "{154E16A0-3777-4B0E-A75A-CE3761E43856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B06CFA83-857A-4C66-81C5-B756E52421E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B06CFA83-857A-4C66-81C5-B756E52421E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B06CFA83-857A-4C66-81C5-B756E52421E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154E16A0-3777-4B0E-A75A-CE3761E43856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154E16A0-3777-4B0E-A75A-CE3761E43856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154E16A0-3777-4B0E-A75A-CE3761E43856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154E16A0-3777-4B0E-A75A-CE3761E43856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

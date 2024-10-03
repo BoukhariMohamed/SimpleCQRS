@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using SimpleCQRS.Application.DTOs;
 using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces;
@@ -44,7 +45,7 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 await _unitOfWork.BeginTransactionAsync();
 
                 //Exception($"Post Not Found {request.postId}");
-                var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.postId, disableTracking: true)
+                var post = await _postRepository.GetAsync(predicate: x => x.PostId == request.postId)
                ?? throw new NotFoundModelException(nameof(Post), request.postId);
 
                 _postRepository.Delete(post);
@@ -53,8 +54,15 @@ namespace SimpleCQRS.Application.Commands.Handlers
 
                 await _unitOfWork.CommitAsync();
 
-                // Notify clients via SignalR about the post deletion
-                await _hubContext.Clients.All.SendAsync("PostDeleted", request.postId);
+                
+                await _hubContext.Clients.All.SendAsync("PostDeleted", new GetPostDto
+                {
+                    Content = post.Content,
+                    Title = post.Title,
+                    PostId = post.PostId,
+                    DateCreated = post.DateCreated,
+                    LastModified = post.LastModified
+                });
 
 
                 return true;

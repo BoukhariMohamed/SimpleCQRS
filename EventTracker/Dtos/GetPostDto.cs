@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SimpleCQRS.Application.DTOs
+﻿namespace EventTracker.Dtos
 {
     public class GetPostDto
     {

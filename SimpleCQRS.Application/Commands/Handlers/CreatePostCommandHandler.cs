@@ -1,6 +1,9 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SimpleCQRS.Application.DTOs;
+using SimpleCQRS.Application.Exceptions;
 using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
@@ -15,15 +18,27 @@ namespace SimpleCQRS.Application.Commands.Handlers
         /// Post Repository
         /// </summary>
         private readonly IGenericRepository<Post> _postRepository;
+        /// <summary>
+        /// Unit Of Work
+        /// </summary>
         private readonly IUnitOfWork _unitOfWork;
+        /// <summary>
+        /// Notification Hub
+        /// </summary>
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        //whay you dont use DTO
-        public CreatePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
+        private readonly IValidator<CreatePostCommand> _validator;
+
+
+        public CreatePostCommandHandler(
+            IGenericRepository<Post> postRepository, 
+            IUnitOfWork unitOfWork, 
+            IHubContext<NotificationHub> hubContext , IValidator<CreatePostCommand> validator)
         {
             _postRepository = postRepository;
             _unitOfWork = unitOfWork;
             _hubContext = hubContext;
+            _validator = validator;
         }
 
         /// <summary>
@@ -40,6 +55,12 @@ namespace SimpleCQRS.Application.Commands.Handlers
             {
                 await _unitOfWork.BeginTransactionAsync();
 
+                var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+                if (!validationResult.IsValid)
+                {
+                    throw new InvalidModelException("Not Valid Contect or Titre");
+                }
+
                 var post = Post.CreatePost(request.title, request.content);
 
                 await _postRepository.AddedAsync(post);
@@ -48,12 +69,18 @@ namespace SimpleCQRS.Application.Commands.Handlers
 
                 await _unitOfWork.CommitAsync();
 
-                // Notify clients via SignalR
-                await _hubContext.Clients.All.SendAsync("PostCreated", post);
+                await _hubContext.Clients.All.SendAsync("PostCreated",new GetPostDto
+                {
+                    Content = post.Content,
+                    Title = post.Title,
+                    PostId = post.PostId,
+                    DateCreated = post.DateCreated,
+                    LastModified = post.LastModified    
+                });
 
                 return post.PostId;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await _unitOfWork.RollbackAsync();
                 throw;

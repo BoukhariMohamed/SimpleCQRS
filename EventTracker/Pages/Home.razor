@@ -1,0 +1,146 @@
+﻿@page "/"
+@inject ISignalRService SignalRService
+
+<PageTitle>Post Tracker</PageTitle>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Post Tracker</h2>
+    <hr />
+    @if (events != null && events.Count > 0)
+    {
+        @foreach (var post in events)
+        {
+            var colors = DetectColorEvent(post.Types);
+
+            <div class="card mb-2 shadow-sm">
+                <div class="card-header d-flex align-items-center" style="background-color:@colors.color2">
+                    <strong class="btn text-uppercase text-white" style="background-color:@colors.color1; width: 100px; padding: 2px 0;font-weight: 700;">@post.Title</strong>
+                    <div class="pe-3 small" style="padding-left: 15px;">
+                        @post.Content
+                    </div>
+                </div>
+            </div>
+
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No events tracked yet.</div>
+    }
+
+    <button type="button" @onclick="ClearData" class="btn btn-outline-danger mt-3">Clear</button>
+</div>
+
+@code {
+    private List<EventTracker> events = new List<EventTracker>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            SignalRService.OnPostsRetrieved(posts =>
+            {
+                events.Add(new EventTracker
+                    {
+                        Title = "GET",
+                        Content = $"You get {posts?.Count()} elements.",
+                        Types = Consts.MyHttpMethod.GetAll
+                    });
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            SignalRService.OnPostCreated(post =>
+            {
+                events.Add(new EventTracker
+                    {
+                        Title = "POST",
+                        Content = $"Element with ID : {post.PostId}",
+                        Types = Consts.MyHttpMethod.Post
+                    });
+
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            SignalRService.OnPostUpdated(post =>
+            {
+                events.Add(new EventTracker
+                    {
+                        Title = "PUT",
+                        Content = $"Element with ID : {post.PostId}",
+                        Types = Consts.MyHttpMethod.Put
+                    });
+
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            SignalRService.OnPostDeleted(post =>
+            {
+                events.Add(new EventTracker
+                    {
+                        Title = "DELETE",
+                        Content = $"Element with ID : {post.PostId}",
+                        Types = Consts.MyHttpMethod.Delete
+                    });
+
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            SignalRService.OnPostRetrieved(post =>
+            {
+                var my = post;
+                events.Add(new EventTracker
+                    {
+                        Title = "GET",
+                        Content = $"Element with ID: {post.PostId}  and Title:{post.Title}",
+                        Types = Consts.MyHttpMethod.Get
+                    });
+
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            await SignalRService.StartAsync();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    public (string color1, string color2) DetectColorEvent(MyHttpMethod type)
+    {
+        return type switch
+        {
+            MyHttpMethod.Get => ("#61AFFE", "#ebf3fb"),
+            MyHttpMethod.Post => ("#49cc90",  "#e8f6f0"),
+            MyHttpMethod.Put => ("#fca130", "#fbf1e6"),
+            MyHttpMethod.Delete => ("#f93e3e", "#fae7e7"),
+            MyHttpMethod.GetAll => ("#61AFFE", "#ebf3fb"),
+            _ => ("#61AFFE","#ebf3fb")
+        };
+    }
+
+    private void ClearData()
+    {
+        events.Clear();
+    }
+}

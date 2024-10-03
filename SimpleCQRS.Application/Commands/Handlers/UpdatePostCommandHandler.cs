@@ -1,6 +1,10 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using SimpleCQRS.Application.DTOs;
 using SimpleCQRS.Application.Exceptions;
+using SimpleCQRS.Application.Hubs;
 using SimpleCQRS.Domain.Interfaces;
 using SimpleCQRS.Domain.Interfaces.Repositories;
 using SimpleCQRS.Infrastructure;
@@ -24,12 +28,14 @@ namespace SimpleCQRS.Application.Commands.Handlers
         /// </summary>
         private readonly IValidator<UpdatePostCommand> _validator;
 
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public UpdatePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork, IValidator<UpdatePostCommand> validator)
+        public UpdatePostCommandHandler(IGenericRepository<Post> postRepository, IUnitOfWork unitOfWork, IValidator<UpdatePostCommand> validator, IHubContext<NotificationHub> hubContext)
         {
             _postRepository = postRepository;
             _validator = validator;
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
 
@@ -53,9 +59,17 @@ namespace SimpleCQRS.Application.Commands.Handlers
                 _postRepository.Update(post);
 
                 await _unitOfWork.SaveChangesAsync();
-
                 await _unitOfWork.CommitAsync();
-              
+
+                await _hubContext.Clients.All.SendAsync("PostUpdated",new GetPostDto
+                {
+                    Content = post.Content,
+                    Title = post.Title,
+                    PostId = post.PostId,
+                    DateCreated = post.DateCreated,
+                    LastModified = post.LastModified
+                });
+
                 return true;
             }
             catch (Exception)
