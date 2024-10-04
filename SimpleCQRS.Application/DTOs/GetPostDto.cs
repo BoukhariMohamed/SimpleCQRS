@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleCQRS.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,6 @@ namespace SimpleCQRS.Application.DTOs
         public string Content { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime LastModified { get; set; }
+        public IEnumerable<GetCommentDto> Comments { get; set; }
     }
 }

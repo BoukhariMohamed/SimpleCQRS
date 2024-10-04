@@ -1,4 +1,5 @@
 ﻿using EventTracker.Dtos;
+using SimpleCQRS.EventTracker.Dtos;
 
 namespace EventTracker.Services;
 
@@ -38,4 +39,10 @@ public interface ISignalRService
     /// </summary>
     /// <param name="handler">Action to execute when a single post is retrieved</param>
     void OnPostRetrieved(Action<GetPostDto> handler);
+
+    /// <summary>
+    /// Subscribes to the CommentCreated event
+    /// </summary>
+    /// <param name="handler"></param>
+    void OnCommentCreated(Action<GetCommentDto> handler);
 }

@@ -22,13 +22,13 @@
             </div>
 
         }
+    <button type="button" @onclick="ClearData" class="btn btn-outline-danger mt-3">Clear</button>
     }
     else
     {
-        <div class="alert alert-info">No events tracked yet.</div>
+     <span class="alert ">No events tracked yet.</span>
     }
 
-    <button type="button" @onclick="ClearData" class="btn btn-outline-danger mt-3">Clear</button>
 </div>
 
 @code {
@@ -43,7 +43,7 @@
                 events.Add(new EventTracker
                     {
                         Title = "GET",
-                        Content = $"You get {posts?.Count()} elements.",
+                        Content = $"You get {posts?.Count()} posts.",
                         Types = Consts.MyHttpMethod.GetAll
                     });
                 InvokeAsync(() =>
@@ -58,7 +58,7 @@
                 events.Add(new EventTracker
                     {
                         Title = "POST",
-                        Content = $"Element with ID : {post.PostId}",
+                        Content = $"Post with ID : {post.PostId}",
                         Types = Consts.MyHttpMethod.Post
                     });
 
@@ -74,7 +74,7 @@
                 events.Add(new EventTracker
                     {
                         Title = "PUT",
-                        Content = $"Element with ID : {post.PostId}",
+                        Content = $"Post with ID : {post.PostId}",
                         Types = Consts.MyHttpMethod.Put
                     });
 
@@ -90,7 +90,7 @@
                 events.Add(new EventTracker
                     {
                         Title = "DELETE",
-                        Content = $"Element with ID : {post.PostId}",
+                        Content = $"Post with ID : {post.PostId}",
                         Types = Consts.MyHttpMethod.Delete
                     });
 
@@ -107,9 +107,25 @@
                 events.Add(new EventTracker
                     {
                         Title = "GET",
-                        Content = $"Element with ID: {post.PostId}  and Title:{post.Title}",
+                        Content = $"Post with ID: {post.PostId}  and Title:{post.Title}",
                         Types = Consts.MyHttpMethod.Get
                     });
+
+                InvokeAsync(() =>
+                {
+                    this.events = events;
+                    StateHasChanged();
+                });
+            });
+
+            SignalRService.OnCommentCreated(comment =>
+            {
+                events.Add(new EventTracker
+                    {
+                        Title = "POST",
+                        Content = $"Comment with ID: {comment.CommentId}  and Title:{comment.Text}",
+                        Types = Consts.MyHttpMethod.Get
+                });
 
                 InvokeAsync(() =>
                 {
@@ -126,11 +142,14 @@
         }
     }
 
-    public (string color1, string color2) DetectColorEvent(MyHttpMethod type)
+
+    #region
+
+    private (string color1, string color2) DetectColorEvent(MyHttpMethod type)
     {
         return type switch
         {
-            MyHttpMethod.Get => ("#61AFFE", "#ebf3fb"),
+            MyHttpMethod.Get => ("#61AFFE","#ebf3fb"),
             MyHttpMethod.Post => ("#49cc90",  "#e8f6f0"),
             MyHttpMethod.Put => ("#fca130", "#fbf1e6"),
             MyHttpMethod.Delete => ("#f93e3e", "#fae7e7"),
@@ -143,4 +162,12 @@
     {
         events.Clear();
     }
+
+    #endregion         
+
+
+
+
+
+    
 }

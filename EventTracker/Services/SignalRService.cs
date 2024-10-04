@@ -1,5 +1,6 @@
 ﻿using EventTracker.Dtos;
 using Microsoft.AspNetCore.SignalR.Client;
+using SimpleCQRS.EventTracker.Dtos;
 
 namespace EventTracker.Services
 {
@@ -44,11 +45,14 @@ namespace EventTracker.Services
             _connection.On("PostsRetrieved", handler);
         }
 
-      
-
         public void OnPostRetrieved(Action<GetPostDto> handler)
         {
             _connection.On("PostGet", handler);
+        }
+
+        public void OnCommentCreated(Action<GetCommentDto> handler)
+        {
+            _connection.On("CommentCreated", handler);
         }
     }
 }
